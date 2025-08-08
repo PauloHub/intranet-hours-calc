@@ -150,15 +150,18 @@ def main():
         hoje_data = datetime.now().date()
         limite_inicio = hoje_data - timedelta(days=2)
         
+        # Verificar erros de validação
+        tem_erro_validacao = False
+        
         # Validação: data fim deve ser anterior a hoje
         if data_fim >= hoje_data:
             st.error("❌ **A data de fim deve ser anterior a hoje!**")
-            return
+            tem_erro_validacao = True
         
         # Validação: data início deve ser anterior a hoje - 2 dias
         if data_inicio >= limite_inicio:
             st.error("❌ **A data de início deve ser anterior a pelo menos 2 dias atrás!**")
-            return
+            tem_erro_validacao = True
         
         # Validação: data fim deve ser maior ou igual à data início
         data_inicio_mes = datetime(ano_inicio, mes_inicio, 1)
@@ -166,28 +169,31 @@ def main():
         
         if data_fim_mes < data_inicio_mes:
             st.error("❌ **Data de fim deve ser maior ou igual à data de início!**")
-            return  # Para a execução se as datas forem inválidas
+            tem_erro_validacao = True
         
-        # Botão de processar
-        if st.button("🚀 Calcular Banco de Horas", type="primary"):
-          # Validação mais rigorosa - verificar se campos não estão vazios ou só com espaços
-          if not all([url_intranet and url_intranet.strip(), 
-                     usuario and usuario.strip(), 
-                     senha and senha.strip()]):
-              st.error("❌ Preencha todos os campos!")
-          else:
-              # Salvar dados na sessão para processamento na área principal
-              st.session_state.processing = True
-              st.session_state.url_intranet = url_intranet
-              st.session_state.usuario = usuario
-              st.session_state.senha = senha
-              st.session_state.mes_inicio = mes_inicio
-              st.session_state.ano_inicio = ano_inicio
-              st.session_state.mes_fim = mes_fim
-              st.session_state.ano_fim = ano_fim
-              st.session_state.results = None  # Limpa resultados anteriores
-              st.session_state.error_message = None  # Limpa erros anteriores
-              st.session_state.error_details = None
+        # Botão de processar - desabilitado se houver erros
+        botao_desabilitado = tem_erro_validacao
+        if botao_desabilitado:
+            st.button("🚀 Calcular Banco de Horas", type="primary", disabled=True, help="Corrija os erros de validação acima para continuar")
+        elif st.button("🚀 Calcular Banco de Horas", type="primary"):
+            # Validação mais rigorosa - verificar se campos não estão vazios ou só com espaços
+            if not all([url_intranet and url_intranet.strip(), 
+                       usuario and usuario.strip(), 
+                       senha and senha.strip()]):
+                st.error("❌ Preencha todos os campos!")
+            else:
+                # Salvar dados na sessão para processamento na área principal
+                st.session_state.processing = True
+                st.session_state.url_intranet = url_intranet
+                st.session_state.usuario = usuario
+                st.session_state.senha = senha
+                st.session_state.mes_inicio = mes_inicio
+                st.session_state.ano_inicio = ano_inicio
+                st.session_state.mes_fim = mes_fim
+                st.session_state.ano_fim = ano_fim
+                st.session_state.results = None  # Limpa resultados anteriores
+                st.session_state.error_message = None  # Limpa erros anteriores
+                st.session_state.error_details = None
 
 
     # ÁREA PRINCIPAL - Controle de fluxo exclusivo
