@@ -4,7 +4,7 @@ FROM python:3.11-slim
 # Metadados
 LABEL maintainer="Paulo Cruz"
 LABEL description="Calculadora genérica de banco de horas com interface Streamlit e segurança avançada"
-LABEL version="1.1.0"
+LABEL version="1.1.1"
 
 # Definir diretório de trabalho
 WORKDIR /app

@@ -203,9 +203,17 @@ class BancoHorasAdvanced:
         
         if padrao_tempo:
             # Pegar o último tempo encontrado (geralmente é o valor que queremos)
-            horas, minutos = map(int, padrao_tempo[-1])
-            tempo_minutos = horas * 60 + minutos
-            return tempo_minutos
+            try:
+                horas, minutos = map(int, padrao_tempo[-1])
+                
+                # Validação básica: minutos não podem ser >= 60
+                if minutos >= 60:
+                    return 0
+                
+                tempo_minutos = horas * 60 + minutos
+                return tempo_minutos
+            except (ValueError, IndexError):
+                return 0
             
         return 0
     
@@ -271,6 +279,10 @@ class BancoHorasAdvanced:
     def calcular_banco_horas(self, mes_inicio, ano_inicio, mes_fim, ano_fim, progress_callback=None):
         """Calcula o banco de horas total no período especificado"""
         meses = self.gerar_lista_meses(mes_inicio, ano_inicio, mes_fim, ano_fim)
+        
+        # Proteção contra lista vazia de meses
+        if not meses:
+            return 0, []
         
         total_minutos = 0
         detalhes = []

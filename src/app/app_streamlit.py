@@ -117,22 +117,27 @@ def main():
         # Data início: 1 ano antes da data fim (último dia do mês passado)
         data_inicio_padrao = ultimo_dia_mes_passado.replace(year=ultimo_dia_mes_passado.year - 1, day=1)
         
+        # Calcular limites dinâmicos baseados nas regras
+        hoje_date = hoje.date()
+        limite_data_fim = hoje_date - timedelta(days=1)  # Data fim deve ser menor que hoje
+        limite_data_inicio = hoje_date - timedelta(days=2)  # Data início deve ser menor que hoje - 2 dias
+        
         # Data início
         data_inicio = st.date_input(
             "📅 Data Início (Mês/Ano):",
             value=data_inicio_padrao,
-            min_value=datetime(2020, 1, 1),
-            max_value=datetime(2030, 12, 31),
-            help="Selecione o mês e ano de início"
+            min_value=datetime(2000, 1, 1),
+            max_value=limite_data_inicio,
+            help="Selecione o mês e ano de início (deve ser anterior a pelo menos 2 dias atrás)"
         )
         
         # Data fim
         data_fim = st.date_input(
             "📅 Data Fim (Mês/Ano):",
             value=ultimo_dia_mes_passado,
-            min_value=datetime(2020, 1, 1),
-            max_value=datetime(2030, 12, 31),
-            help="Selecione o mês e ano de fim"
+            min_value=datetime(2000, 1, 1),
+            max_value=limite_data_fim,
+            help="Selecione o mês e ano de fim (deve ser anterior a hoje)"
         )
         
         # Extrair mês e ano
@@ -141,9 +146,34 @@ def main():
         mes_fim = data_fim.month
         ano_fim = data_fim.year
         
+        # Validação das datas (fallback de segurança)
+        hoje_data = datetime.now().date()
+        limite_inicio = hoje_data - timedelta(days=2)
+        
+        # Validação: data fim deve ser anterior a hoje
+        if data_fim >= hoje_data:
+            st.error("❌ **A data de fim deve ser anterior a hoje!**")
+            return
+        
+        # Validação: data início deve ser anterior a hoje - 2 dias
+        if data_inicio >= limite_inicio:
+            st.error("❌ **A data de início deve ser anterior a pelo menos 2 dias atrás!**")
+            return
+        
+        # Validação: data fim deve ser maior ou igual à data início
+        data_inicio_mes = datetime(ano_inicio, mes_inicio, 1)
+        data_fim_mes = datetime(ano_fim, mes_fim, 1)
+        
+        if data_fim_mes < data_inicio_mes:
+            st.error("❌ **Data de fim deve ser maior ou igual à data de início!**")
+            return  # Para a execução se as datas forem inválidas
+        
         # Botão de processar
         if st.button("🚀 Calcular Banco de Horas", type="primary"):
-          if not all([url_intranet, usuario, senha]):
+          # Validação mais rigorosa - verificar se campos não estão vazios ou só com espaços
+          if not all([url_intranet and url_intranet.strip(), 
+                     usuario and usuario.strip(), 
+                     senha and senha.strip()]):
               st.error("❌ Preencha todos os campos!")
           else:
               # Salvar dados na sessão para processamento na área principal
@@ -216,7 +246,12 @@ def main():
                     # Progresso de 70% a 90% (20% de range)
                     progresso_base = 70
                     progresso_range = 20
-                    progresso_atual = progresso_base + (progresso_range * mes_atual / total_meses)
+                    
+                    # Proteção contra divisão por zero
+                    if total_meses > 0:
+                        progresso_atual = progresso_base + (progresso_range * mes_atual / total_meses)
+                    else:
+                        progresso_atual = progresso_base
                     
                     progress_bar.progress(int(progresso_atual))
                     progress_text.text(f"Progresso: {int(progresso_atual)}% - Calculando {mes_ano} ({mes_atual}/{total_meses})")
@@ -299,6 +334,11 @@ def main():
         
         # Métricas resumo
         create_summary_metrics(total_minutos, detalhes)
+        
+        # Verificar se há dados para exibir
+        if not detalhes:
+            st.warning("⚠️ Nenhum dado encontrado para o período selecionado.")
+            return
         
         # Preparar dados para gráficos
         df = pd.DataFrame([

@@ -72,6 +72,19 @@ def create_monthly_chart(df):
     """Cria gráfico mensal de banco de horas"""
     fig = go.Figure()
     
+    # Proteção contra DataFrame vazio
+    if df.empty:
+        fig.add_annotation(
+            text="Nenhum dado disponível",
+            xref="paper", yref="paper",
+            x=0.5, y=0.5, showarrow=False
+        )
+        fig.update_layout(
+            title='Banco de Horas por Mês',
+            height=400
+        )
+        return fig
+    
     # Cores baseadas no saldo
     colors = ['#28a745' if x > 0 else '#dc3545' if x < 0 else '#6c757d' for x in df['saldo_minutos']]
     
@@ -101,6 +114,20 @@ def create_monthly_chart(df):
 
 def create_cumulative_chart(df):
     """Cria gráfico cumulativo de banco de horas"""
+    # Proteção contra DataFrame vazio
+    if df.empty:
+        fig = go.Figure()
+        fig.add_annotation(
+            text="Nenhum dado disponível",
+            xref="paper", yref="paper",
+            x=0.5, y=0.5, showarrow=False
+        )
+        fig.update_layout(
+            title='Evolução Cumulativa do Banco de Horas',
+            height=400
+        )
+        return fig
+    
     # Criar uma cópia do DataFrame para não alterar o original
     df_work = df.copy()
     
@@ -149,6 +176,19 @@ def create_cumulative_chart(df):
 
 def create_summary_metrics(total_minutes, details):
     """Cria métricas resumo"""
+    # Proteção contra lista vazia
+    if not details:
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            st.metric("⚪ Saldo Final", "00:00", "Sem dados")
+        with col2:
+            st.metric("🟢 Meses Positivos", 0)
+        with col3:
+            st.metric("🔴 Meses Negativos", 0)
+        with col4:
+            st.metric("⚪ Meses Neutros", 0)
+        return
+    
     positive_months = sum(1 for d in details if d['saldo'] > 0)
     negative_months = sum(1 for d in details if d['saldo'] < 0)
     neutral_months = sum(1 for d in details if d['saldo'] == 0)
@@ -184,9 +224,14 @@ def download_report(df, total_minutes):
     
     buffer.write("DETALHES POR MÊS:\n")
     buffer.write("-" * 30 + "\n")
-    for _, row in df.iterrows():
-        status = "CRÉDITO" if row['saldo_minutos'] > 0 else "DÉBITO" if row['saldo_minutos'] < 0 else "NEUTRO"
-        buffer.write(f"{row['mes_ano']}: {row['saldo_formatado']} ({status})\n")
+    
+    # Proteção contra DataFrame vazio
+    if df.empty:
+        buffer.write("Nenhum dado disponível para o período selecionado.\n")
+    else:
+        for _, row in df.iterrows():
+            status = "CRÉDITO" if row['saldo_minutos'] > 0 else "DÉBITO" if row['saldo_minutos'] < 0 else "NEUTRO"
+            buffer.write(f"{row['mes_ano']}: {row['saldo_formatado']} ({status})\n")
     
     buffer.write(f"\nRESULTADO FINAL:\n")
     buffer.write("-" * 20 + "\n")

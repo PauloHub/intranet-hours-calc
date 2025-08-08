@@ -1,6 +1,6 @@
 # Calculadora de Banco de Horas - Genérica
 
-**Versão 1.1 - Modular + Docker + Segurança Avançada** 🐳🛡️
+**Versão 1.1.1 - Modular + Docker + Segurança Avançada** 🐳🛡️
 
 Aplicação para calcular banco de horas de intranets com interface web moderna, arquitetura modular e recursos de segurança aprimorados.
 
@@ -25,24 +25,26 @@ python main.py
 ```
 intranet-hours-calc/
 ├── 🎨 Código Fonte
-│   └── src/
-│       ├── app/                     # Módulos Python da aplicação
-│       │   ├── __init__.py
-│       │   ├── app_streamlit.py     # Interface Streamlit principal
-│       │   ├── banco_horas.py       # Módulo de web scraping (BancoHorasAdvanced)
-│       │   └── utils.py             # Funções utilitárias e gráficos
-│       └── styles/
-│           └── main.css             # CSS externo organizados
+│   ├── src/
+│   │   ├── __init__.py              # Módulo principal do projeto
+│   │   ├── app/                     # Módulos Python da aplicação
+│   │   │   ├── __init__.py          # Módulo app (v1.1.1)
+│   │   │   ├── app_streamlit.py     # Interface Streamlit principal
+│   │   │   ├── banco_horas.py       # Módulo de web scraping (BancoHorasAdvanced)
+│   │   │   └── utils.py             # Funções utilitárias e gráficos
+│   │   └── styles/
+│   │       └── main.css             # CSS externo para interface
+│   └── main.py                      # Script principal de execução
 ├── 🐳 Docker & Deploy
-│   ├── Dockerfile                   # Container da aplicação
+│   ├── Dockerfile                   # Container da aplicação (v1.1.1)
 │   ├── docker-compose.yml           # Orquestração de serviços
-│   ├── docker_run.sh               # Script de execução rápida
-│   └── build.sh                    # Script de build
+│   └── docker_run.sh               # Script de execução rápida
 ├── 📦 Configuração
-│   ├── main.py                     # Script principal de execução
-│   └── requirements.txt            # Dependências Python
+│   ├── requirements.txt             # Dependências Python
+│   ├── .gitignore                   # Arquivos ignorados pelo Git
+│   └── temp/                        # Diretório temporário
 └── 📖 Documentação
-    └── README.md                   # Esta documentação
+    └── README.md                    # Esta documentação
 ```
 
 ## 🌐 Compatibilidade
