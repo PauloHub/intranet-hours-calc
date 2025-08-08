@@ -2,9 +2,9 @@
 FROM python:3.11-slim
 
 # Metadados
-LABEL maintainer="Sistema automatizado"
-LABEL description="Calculadora genérica de banco de horas com interface Streamlit"
-LABEL version="1.0"
+LABEL maintainer="Paulo Cruz"
+LABEL description="Calculadora genérica de banco de horas com interface Streamlit e segurança avançada"
+LABEL version="1.1.0"
 
 # Definir diretório de trabalho
 WORKDIR /app

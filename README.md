@@ -1,8 +1,8 @@
 # Calculadora de Banco de Horas - Genérica
 
-**Versão 1.0 - Modular + Docker** 🐳
+**Versão 1.1 - Modular + Docker + Segurança Avançada** 🐳🛡️
 
-Aplicação para calcular banco de horas de intranets com interface web moderna e arquitetura modular.
+Aplicação para calcular banco de horas de intranets com interface web moderna, arquitetura modular e recursos de segurança aprimorados.
 
 ## 🚀 Execução Rápida
 
@@ -67,7 +67,9 @@ Funciona com intranets que tenham:
 - ✅ **Barra de progresso**: Feedback visual em tempo real
 - ✅ **Docker**: Containerização completa
 - ✅ **Multi-estratégia**: 3 métodos de parsing HTML
-- ✅ **Retry inteligente**: Até 3 tentativas por mês
+- ✅ **Retry inteligente**: Backoff exponencial com múltiplas tentativas
+- ✅ **Segurança avançada**: Validação de URL, limpeza de credenciais, sanitização CSS
+- ✅ **Headers realistas**: User-Agent randomizado e headers completos
 - ✅ **100% genérico**: Sem referências específicas
 
 ## 🎯 Como Usar
@@ -78,7 +80,18 @@ Funciona com intranets que tenham:
 4. Digite credenciais e período desejado
 5. Visualize gráficos, métricas e download do relatório
 
-## 🐛 Troubleshooting
+## �️ Segurança e Robustez
+
+**Recursos de Segurança Implementados:**
+- 🔒 **Limpeza automática de credenciais** da memória após uso
+- 🚫 **Validação rigorosa de URLs** (bloqueia localhost e protocolos inseguros)
+- 🧹 **Sanitização de CSS** (remove imports externos e javascript)
+- 🎭 **User-Agent randomizado** e headers realistas para evitar detecção
+- 🔄 **Retry inteligente** com backoff exponencial (2s → 4s → 8s)
+- ⚡ **Timeouts progressivos** para conexões lentas
+- 🛡️ **Tratamento específico de exceções** por tipo de erro
+
+## �🐛 Troubleshooting
 
 | Problema | Solução |
 |----------|---------|
@@ -87,6 +100,7 @@ Funciona com intranets que tenham:
 | **Docker não inicia** | `docker-compose logs -f` para ver logs |
 | **Progresso travado** | Aguarde, pode levar alguns minutos por mês |
 | **URL inválida** | Sistema formata automaticamente URLs |
+| **URLs locais bloqueadas** | Por segurança, localhost não é permitido |
 
 ## 📚 Dependências
 

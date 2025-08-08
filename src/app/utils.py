@@ -9,6 +9,7 @@ import plotly.graph_objects as go
 import pandas as pd
 from datetime import datetime
 import io
+import re
 
 
 def init_session_state():
@@ -45,10 +46,15 @@ def format_time(minutes):
 
 
 def load_css(css_file):
-    """Carrega arquivo CSS e aplica no Streamlit"""
+    """Carrega arquivo CSS e aplica no Streamlit de forma segura"""
     try:
         with open(css_file, 'r', encoding='utf-8') as f:
             css_content = f.read()
+        
+        # Sanitização básica: remover conteúdo potencialmente perigoso
+        # Remove possíveis scripts ou imports externos
+        css_content = re.sub(r'@import\s+url\([^)]*\);?', '', css_content)
+        css_content = re.sub(r'javascript:', '', css_content, flags=re.IGNORECASE)
         
         st.markdown(f"""
         <style>

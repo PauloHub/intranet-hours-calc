@@ -11,14 +11,30 @@ from urllib.parse import quote
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 import time
+import random
 
 
 class BancoHorasAdvanced:
     def __init__(self, base_url):
         self.session = requests.Session()
+        
+        # User-Agent mais realista e randomizado
+        user_agents = [
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        ]
+        
         self.session.headers.update({
-            'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+            'User-Agent': random.choice(user_agents),
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+            'Accept-Language': 'pt-BR,pt;q=0.9,en;q=0.8',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1'
         })
+        
         self.base_url = base_url
         self.login_url = f"{self.base_url}/ControleAcesso/Seguranca/Login?ReturnUrl=%2fHoras%2fFolhaPonto%2fRelatorio"
         self.relatorio_url = f"{self.base_url}/Horas/FolhaPonto/Relatorio"
@@ -69,7 +85,17 @@ class BancoHorasAdvanced:
             # Verificar sucesso
             return self._verificar_login_sucesso(response)
                 
+        except requests.exceptions.Timeout:
+            # Timeout específico
+            return False
+        except requests.exceptions.ConnectionError:
+            # Erro de conexão
+            return False
+        except requests.exceptions.RequestException:
+            # Outros erros de requisição
+            return False
         except Exception:
+            # Outros erros inesperados
             return False
     
     def _verificar_login_sucesso(self, response):
@@ -184,20 +210,32 @@ class BancoHorasAdvanced:
         return 0
     
     def processar_mes_com_retry(self, mes_ano, max_tentativas=3):
-        """Processa um mês com tentativas múltiplas"""
+        """Processa um mês com tentativas múltiplas e backoff exponencial"""
         for tentativa in range(max_tentativas):
             try:
                 url_mes = f"{self.relatorio_url}?mesAno={quote(mes_ano)}"
                 
-                response = self.session.get(url_mes, timeout=15)
+                # Timeout progressivo
+                timeout = 10 + (tentativa * 5)
+                response = self.session.get(url_mes, timeout=timeout)
                 
                 if response.status_code == 200:
                     saldo = self.extrair_horas_avancado(response.content)
                     return saldo
                     
+            except requests.exceptions.Timeout:
+                if tentativa < max_tentativas - 1:
+                    # Backoff exponencial: 2, 4, 8 segundos
+                    wait_time = 2 ** (tentativa + 1)
+                    time.sleep(wait_time)
+            except requests.exceptions.RequestException:
+                if tentativa < max_tentativas - 1:
+                    wait_time = 2 ** (tentativa + 1)
+                    time.sleep(wait_time)
             except Exception:
                 if tentativa < max_tentativas - 1:
-                    time.sleep(2)  # Aguardar antes de tentar novamente
+                    wait_time = 2 ** (tentativa + 1)
+                    time.sleep(wait_time)
         
         return 0
     

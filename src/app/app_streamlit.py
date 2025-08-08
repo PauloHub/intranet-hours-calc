@@ -85,14 +85,21 @@ def main():
             # Extrair apenas o domínio principal (remover paths e parâmetros)
             try:
                 parsed = urlparse(url_intranet)
-                url_intranet = f"{parsed.scheme}://{parsed.netloc}"
-                
-                # Exibir URL limpa para o usuário
-                if parsed.netloc:
-                    st.info(f"🔗 URL processada: `{url_intranet}`")
+                # Validação básica de segurança
+                if not parsed.netloc or parsed.netloc.lower() in ['localhost', '127.0.0.1']:
+                    st.warning("⚠️ URLs locais não são permitidas por segurança")
+                    url_intranet = ""
+                elif parsed.scheme not in ['http', 'https']:
+                    st.warning("⚠️ Apenas URLs HTTP/HTTPS são permitidas")
+                    url_intranet = ""
+                else:
+                    url_intranet = f"{parsed.scheme}://{parsed.netloc}"
+                    # Exibir URL limpa para o usuário
+                    if parsed.netloc:
+                        st.info(f"🔗 URL processada: `{url_intranet}`")
             except Exception:
-                # Se houver erro no parsing, manter a URL original
-                pass
+                st.warning("⚠️ URL inválida")
+                url_intranet = ""
         
         # Credenciais
         st.subheader("🔐 Credenciais")
@@ -270,6 +277,12 @@ def main():
             time.sleep(3)
         
         finally:
+            # Limpar credenciais sensíveis da sessão por segurança
+            if 'senha' in st.session_state:
+                del st.session_state.senha
+            if 'usuario' in st.session_state:
+                del st.session_state.usuario
+            
             # Limpar estado de processamento
             st.session_state.processing = False
             time.sleep(1)
