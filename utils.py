@@ -6,6 +6,7 @@ Funções auxiliares para formatação e manipulação de dados
 
 import streamlit as st
 import plotly.graph_objects as go
+import pandas as pd
 from datetime import datetime
 import io
 
@@ -94,7 +95,22 @@ def create_monthly_chart(df):
 
 def create_cumulative_chart(df):
     """Cria gráfico cumulativo de banco de horas"""
-    df_sorted = df.sort_values('mes_ano')
+    # Criar uma cópia do DataFrame para não alterar o original
+    df_work = df.copy()
+    
+    try:
+        # Converter mes_ano para datetime para ordenação correta
+        df_work['data_ordenacao'] = pd.to_datetime(df_work['mes_ano'], format='%m/%Y')
+        
+        # Ordenar por data cronológica
+        df_sorted = df_work.sort_values('data_ordenacao')
+        
+    except Exception:
+        # Fallback: se der erro na conversão, usar ordenação simples
+        # Isso pode acontecer se o formato for diferente do esperado
+        df_sorted = df_work.sort_values('mes_ano')
+    
+    # Calcular valores cumulativos
     df_sorted['saldo_cumulativo'] = df_sorted['saldo_minutos'].cumsum()
     df_sorted['saldo_cum_horas'] = df_sorted['saldo_cumulativo'] / 60
     

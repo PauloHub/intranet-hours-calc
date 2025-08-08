@@ -98,9 +98,6 @@ class BancoHorasAdvanced:
         funcionario_deve_minutos = 0
         empresa_deve_minutos = 0
         
-        # Calcular folgas a compensar
-        folgas_compensar_minutos = self._calcular_folgas_compensar(soup)
-        
         # Múltiplas estratégias de busca
         estrategias = [
             self._buscar_por_classe,
@@ -109,7 +106,7 @@ class BancoHorasAdvanced:
         ]
         
         for estrategia in estrategias:
-            func_deve, emp_deve = estrategia(soup, folgas_compensar_minutos)
+            func_deve, emp_deve = estrategia(soup)
             if func_deve > 0 or emp_deve > 0:
                 funcionario_deve_minutos = func_deve
                 empresa_deve_minutos = emp_deve
@@ -117,51 +114,7 @@ class BancoHorasAdvanced:
         
         return empresa_deve_minutos - funcionario_deve_minutos
     
-    def _calcular_folgas_compensar(self, soup):
-        """Calcula o total de folgas a compensar em minutos"""
-        # Buscar por "<td>folga a compensar</td>" (case insensitive)
-        folgas_encontradas = soup.find_all('td', string=re.compile(r'folga\s+a\s+compensar', re.I))
-        
-        if folgas_encontradas:
-            quantidade_folgas = len(folgas_encontradas)
-            # Cada folga = 8 horas = 480 minutos
-            folgas_minutos = quantidade_folgas * 8 * 60
-            return folgas_minutos
-        
-        return 0
-    
-    def _aplicar_folgas_compensadas(self, func_deve, emp_deve, folgas_compensar_minutos):
-        """Aplica a lógica de folgas compensadas com transferência entre func_deve e emp_deve"""
-        
-        # Cenário 1: Funcionário deve horas (func_deve > 0)
-        if func_deve > 0:
-            # Subtrair folgas do que o funcionário deve
-            func_deve_resultado = func_deve - folgas_compensar_minutos
-            
-            if func_deve_resultado < 0:
-                # Funcionário deveria mais folgas do que deve horas
-                # Transferir o excesso para empresa deve (positivo)
-                excesso = abs(func_deve_resultado)
-                func_deve = 0
-                emp_deve = emp_deve + excesso
-            else:
-                # Funcionário ainda deve horas após compensar folgas
-                func_deve = func_deve_resultado
-        
-        # Cenário 2: Empresa deve horas (emp_deve > 0)
-        elif emp_deve > 0:
-            # Somar folgas ao que a empresa deve
-            emp_deve_resultado = emp_deve + folgas_compensar_minutos
-            emp_deve = emp_deve_resultado
-        
-        # Cenário 3: Nenhum dos dois deve (valores zerados)
-        # Neste caso, as folgas compensadas vão para empresa deve
-        elif func_deve == 0 and emp_deve == 0:
-            emp_deve = folgas_compensar_minutos
-            
-        return func_deve, emp_deve
-    
-    def _buscar_por_classe(self, soup, folgas_compensar_minutos=0):
+    def _buscar_por_classe(self, soup):
         """Busca usando classes CSS"""
         func_deve = 0
         emp_deve = 0
@@ -175,14 +128,10 @@ class BancoHorasAdvanced:
         tr_danger = soup.find('tr', class_='text-danger')
         if tr_danger:
             emp_deve = self._extrair_tempo_da_linha(tr_danger, 'empresa deve')
-        
-        # Aplicar lógica de folgas compensadas com transferência
-        if folgas_compensar_minutos > 0:
-            func_deve, emp_deve = self._aplicar_folgas_compensadas(func_deve, emp_deve, folgas_compensar_minutos)
             
         return func_deve, emp_deve
     
-    def _buscar_por_texto(self, soup, folgas_compensar_minutos=0):
+    def _buscar_por_texto(self, soup):
         """Busca por texto específico"""
         func_deve = 0
         emp_deve = 0
@@ -199,14 +148,10 @@ class BancoHorasAdvanced:
             if tr:
                 emp_deve = self._extrair_tempo_da_linha(tr, 'empresa deve')
                 break
-        
-        # Aplicar lógica de folgas compensadas com transferência
-        if folgas_compensar_minutos > 0:
-            func_deve, emp_deve = self._aplicar_folgas_compensadas(func_deve, emp_deve, folgas_compensar_minutos)
                 
         return func_deve, emp_deve
     
-    def _buscar_por_estrutura_tabela(self, soup, folgas_compensar_minutos=0):
+    def _buscar_por_estrutura_tabela(self, soup):
         """Busca percorrendo toda a estrutura da tabela"""
         func_deve = 0
         emp_deve = 0
@@ -218,10 +163,6 @@ class BancoHorasAdvanced:
                 func_deve = self._extrair_tempo_da_linha(tr, 'funcionário deve')
             elif 'empresa deve' in texto_linha:
                 emp_deve = self._extrair_tempo_da_linha(tr, 'empresa deve')
-        
-        # Aplicar lógica de folgas compensadas com transferência
-        if folgas_compensar_minutos > 0:
-            func_deve, emp_deve = self._aplicar_folgas_compensadas(func_deve, emp_deve, folgas_compensar_minutos)
                 
         return func_deve, emp_deve
     

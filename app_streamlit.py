@@ -282,16 +282,16 @@ def main():
             for d in detalhes
         ])
         
-        # Gráficos
-        col1, col2 = st.columns(2)
+        # Gráficos - Layout vertical (um em cima do outro)
+        st.subheader("📊 Gráficos")
         
-        with col1:
-            fig_monthly = create_monthly_chart(df)
-            st.plotly_chart(fig_monthly, use_container_width=True)
+        # Gráfico mensal por mês
+        fig_monthly = create_monthly_chart(df)
+        st.plotly_chart(fig_monthly, use_container_width=True)
         
-        with col2:
-            fig_cumulative = create_cumulative_chart(df)
-            st.plotly_chart(fig_cumulative, use_container_width=True)
+        # Gráfico cumulativo
+        fig_cumulative = create_cumulative_chart(df)
+        st.plotly_chart(fig_cumulative, use_container_width=True)
         
         # Tabela detalhada
         st.subheader("📋 Detalhes por Mês")
