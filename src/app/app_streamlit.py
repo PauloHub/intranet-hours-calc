@@ -11,16 +11,30 @@ from urllib.parse import urlparse
 import time
 
 # Importar módulos locais
-from banco_horas import BancoHorasAdvanced
-from utils import (
-    init_session_state, 
-    format_time, 
-    load_css,
-    create_monthly_chart, 
-    create_cumulative_chart,
-    create_summary_metrics,
-    download_report
-)
+try:
+    # Tentativa com importação relativa (quando executado como módulo)
+    from .banco_horas import BancoHorasAdvanced
+    from .utils import (
+        init_session_state, 
+        format_time, 
+        load_css,
+        create_monthly_chart, 
+        create_cumulative_chart,
+        create_summary_metrics,
+        download_report
+    )
+except ImportError:
+    # Fallback para importação absoluta (quando executado diretamente)
+    from banco_horas import BancoHorasAdvanced
+    from utils import (
+        init_session_state, 
+        format_time, 
+        load_css,
+        create_monthly_chart, 
+        create_cumulative_chart,
+        create_summary_metrics,
+        download_report
+    )
 
 # Configuração da página
 st.set_page_config(
@@ -31,7 +45,9 @@ st.set_page_config(
 )
 
 # Carregar CSS externo
-load_css('styles/main.css')
+import os
+css_path = os.path.join(os.path.dirname(__file__), '..', 'styles', 'main.css')
+load_css(css_path)
 
 
 def main():

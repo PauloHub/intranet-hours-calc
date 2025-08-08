@@ -1,6 +1,6 @@
 # Calculadora de Banco de Horas - Genérica
 
-**Versão 2.0 - Modular + Docker** 🐳
+**Versão 1.0 - Modular + Docker** 🐳
 
 Aplicação para calcular banco de horas de intranets com interface web moderna e arquitetura modular.
 
@@ -15,29 +15,34 @@ Aplicação para calcular banco de horas de intranets com interface web moderna 
 ### 💻 Execução Local
 ```bash
 pip install -r requirements.txt
-streamlit run app_streamlit.py
+streamlit run src/app/app_streamlit.py
+# OU usar o script principal
+python main.py
 ```
 
 ## �️ Estrutura do Projeto
 
 ```
-count/
-├── 🎨 Aplicação Principal
-│   ├── app_streamlit.py          # Interface Streamlit principal
-│   ├── banco_horas.py           # Módulo de web scraping (BancoHorasAdvanced)
-│   └── utils.py                 # Funções utilitárias e gráficos
-├── 🎨 Estilos
-│   └── styles/
-│       └── main.css             # CSS externo organizados
+intranet-hours-calc/
+├── 🎨 Código Fonte
+│   └── src/
+│       ├── app/                     # Módulos Python da aplicação
+│       │   ├── __init__.py
+│       │   ├── app_streamlit.py     # Interface Streamlit principal
+│       │   ├── banco_horas.py       # Módulo de web scraping (BancoHorasAdvanced)
+│       │   └── utils.py             # Funções utilitárias e gráficos
+│       └── styles/
+│           └── main.css             # CSS externo organizados
 ├── 🐳 Docker & Deploy
-│   ├── Dockerfile               # Container da aplicação
-│   ├── docker-compose.yml       # Orquestração de serviços
-│   ├── docker_run.sh           # Script de execução rápida
-│   └── build.sh                # Script de build
+│   ├── Dockerfile                   # Container da aplicação
+│   ├── docker-compose.yml           # Orquestração de serviços
+│   ├── docker_run.sh               # Script de execução rápida
+│   └── build.sh                    # Script de build
 ├── 📦 Configuração
-│   └── requirements.txt         # Dependências Python
+│   ├── main.py                     # Script principal de execução
+│   └── requirements.txt            # Dependências Python
 └── 📖 Documentação
-    └── README.md               # Esta documentação
+    └── README.md                   # Esta documentação
 ```
 
 ## 🌐 Compatibilidade
@@ -67,7 +72,7 @@ Funciona com intranets que tenham:
 
 ## 🎯 Como Usar
 
-1. Execute `./docker_run.sh` ou `streamlit run app_streamlit.py`
+1. Execute `./docker_run.sh` ou `streamlit run src/app/app_streamlit.py` ou `python main.py`
 2. Acesse http://localhost:8501
 3. Configure URL da intranet na sidebar
 4. Digite credenciais e período desejado
@@ -105,7 +110,8 @@ docker-compose logs -f       # Ver logs em tempo real
 docker-compose down          # Parar aplicação
 
 # Local
-streamlit run app_streamlit.py --server.port 8501
+streamlit run src/app/app_streamlit.py --server.port 8501
+python main.py               # Script principal alternativo
 pip install -r requirements.txt
 ```
 
