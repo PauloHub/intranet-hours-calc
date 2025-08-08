@@ -1,0 +1,69 @@
+/* CSS Principal - Calculadora de Banco de Horas */
+
+/* Header principal */
+.main-header {
+    background: linear-gradient(90deg, #4A90E2 0%, #1E3A8A 100%);
+    padding: 1rem;
+    border-radius: 10px;
+    color: white;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+/* Cards de métricas */
+.metric-card {
+    background: white;
+    padding: 1rem;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-left: 4px solid #4A90E2;
+}
+
+.success-card {
+    border-left-color: #28a745;
+}
+
+.danger-card {
+    border-left-color: #dc3545;
+}
+
+.warning-card {
+    border-left-color: #ffc107;
+}
+
+/* Sidebar */
+.sidebar .sidebar-content {
+    background: #f8f9fa;
+}
+
+/* Estabilizar tabelas para evitar piscar durante redimensionamento */
+.stDataFrame {
+    transition: none !important;
+}
+
+.stDataFrame > div {
+    transition: none !important;
+    animation: none !important;
+}
+
+/* Evitar reflow da tabela */
+.stDataFrame iframe {
+    min-height: 200px;
+    transition: none !important;
+}
+
+/* Container estável para tabela */
+div[data-testid="stDataFrame"] {
+    transition: none !important;
+    position: relative;
+}
+
+/* Reduzir padding inferior do container principal */
+.block-container {
+    padding-bottom: 2rem !important;
+}
+
+/* Container principal */
+div[data-testid="block-container"] {
+    padding-bottom: 2rem !important;
+}
